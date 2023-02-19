@@ -25,11 +25,10 @@ function gaussianRandom(mean = 0, stdev = 1) {
     return z * stdev + mean;
 }
 
-function addNewCube(newCube) {
+function setupNewCube(newCube) {
     newCube.randomizeMesh();
 
     pathCubes.push(newCube);
-    scene.add(pathCubes[cubeIndex].mesh);
 }
 
 // Objects hold information about a custom configurable function and are able to output information about it 
@@ -96,32 +95,27 @@ function Cube(cubeIndex, tPos) {
         this.mesh.rotation.z += this.rotationVelocity.z * (2 * Math.PI) * deltaTime;
     }
 
+    this.isPartOfScene = true;
     // Updates the time value of the cube (each cubes position is calculeted respective to their current time Position)
     this.updateTPos = function(deltaTime) {
+        // Update cubeIndex
+        this.cubeIndex = pathCubes.indexOf(this);
+
         // Calculate speed up (Higer when page just loaded)
-        let initialSpeedMultipier = (15 - 1) * Math.pow(1.75, -clock.getElapsedTime()) + 1; // (Speed increase - 1) * fallofSpeed^-elapsedTimeSincePageLoaded + 1
+        let initialSpeedMultipier = (20 - 1) * Math.pow(1.75, -clock.getElapsedTime()) + 1; // (Speed increase - 1) * fallofSpeed^-elapsedTimeSincePageLoaded + 1
         // factor in pathLength (because pathLength != 1) and scale by cube Speed and initialSpeedup
         let speedMultipier = cubePath.pathLength * this.cubeSpeed * initialSpeedMultipier;
         // Adjust for slope (higer slope -> lower speed)
         this.tPos += deltaTime / Math.sqrt(1 + Math.pow(cubePath.getCurrentSlope(this.tPos), 2)) * speedMultipier;
+
         // Reset tPos when reached endTPos
-        if (this.tpos > 0.5) {
-            cubeIndex -= 1
-            scene.remove(this.mesh);
-            // console.log("Deleted mesh")
-            pathCubes.splice(this.cubeIndex);
-            return
-        }
         if (this.tPos > cubePath.endTPos) {
-            console.log(pathCubes.length > cubeAmount)
-            // Delete object if there are already to many
-            // if (pathCubes.length > cubeAmount)
-            // {
-            //     cubeIndex -= 1
-            //     scene.remove(this.mesh);
-            //     pathCubes.splice(this.cubeIndex);
-            //     return
-            // }
+            // Delete object if there already are to many
+            if (pathCubes.length > cubeAmount) {
+                this.mesh.position.y -= 10000;
+                this.isPartOfScene = false;
+                return
+            }
             this.tPos -= cubePath.endTPos - cubePath.startTPos;
             this.randomizeMesh();
             this.randomizeOffset();
@@ -136,18 +130,19 @@ function Cube(cubeIndex, tPos) {
         let size = baseValue + (Math.random() * 2 - 1) * randomizationRange;
         let geometry = new THREE.BoxGeometry(size, size, size, 1, 1, 1);
         this.mesh = new THREE.Mesh(geometry, material);
+        scene.add(this.mesh)
     }
 
-    this.randomizeOffset = function(OffsetMultiplier = new Vector2(150, 100)) {
+    this.randomizeOffset = function(offsetMultiplier = new Vector2(100, 100)) {
         return new Vector3(
-            Math.abs(gaussianRandom() / 1) * OffsetMultiplier.x,
-            (gaussianRandom() / 1.5) * OffsetMultiplier.y,
-            this.cubeIndex * 100 + 100
+            Math.abs(gaussianRandom() / 1) * offsetMultiplier.x,
+            (gaussianRandom() / 1.5) * offsetMultiplier.y,
+            this.cubeIndex * 100 + 500
         );
     }
     this.posOffset = this.randomizeOffset();
 
-    this.randomizeRotationVelocity = function(baseValue = 0.2, randomizationRange = 0.15) {
+    this.randomizeRotationVelocity = function(baseValue = 0.05, randomizationRange = 0.05) {
         return new Vector3(
             baseValue + (Math.random() * 2 - 1) * randomizationRange,
             baseValue + (Math.random() * 2 - 1) * randomizationRange,
@@ -162,7 +157,8 @@ function Cube(cubeIndex, tPos) {
     this.cubeSpeed = this.randomizeCubeSpeed()
 };
 
-const scene = new THREE.Scene(); // Creates scene
+// Create scene
+const scene = new THREE.Scene();
 
 // Setup camera and canvas
 const camera = new THREE.OrthographicCamera(0, window.innerWidth, 0, window.innerHeight, 0.1, 1000000);
@@ -172,18 +168,29 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
+// Setup light
+const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.5)
+directionalLight.position.set(0, 0, -1)
+scene.add(directionalLight);
+
 // Create path cubes
 var pathCubes = []
-var cubeAmount = Math.round(window.innerWidth / 30);
-camera.position.z = cubeAmount * 100 + 100; // All cubes are positioned behind each other, so they dont colide
-const material = new THREE.MeshBasicMaterial({ color: 0xFF6347, wireframe: true });
-const cubePath = new SinPath(-0.3, 0.5, 1 / 3);
-for (var cubeIndex = 0; cubeIndex < cubeAmount; cubeIndex += 1) {
+var cubeAmount = Math.round(window.innerWidth / 40);
+var hasCubeAmountChanged;
+var recentPathCubesListLength;
+camera.position.z = cubeAmount * 100 + 1000; // All cubes are positioned behind each other, so they dont colide
+const material = new THREE.MeshStandardMaterial({
+    color: 0xFF0000,
+    roughness: 0
+});
+const cubePath = new SinPath(-0.35, 0.5, 0.4);
+var cubeIndex = 0;
+for (cubeIndex = 0; cubeIndex < cubeAmount; cubeIndex += 1) {
     let tPos = lerp(cubePath.startTPos, cubePath.endTPos, cubeIndex / cubeAmount); // Distribute tPos equally
     tPos -= cubePath.endTPos // Move cubes bejoind start position, so they fly in initially
 
     let pathCube = new Cube(cubeIndex, tPos);
-    addNewCube(pathCube);
+    setupNewCube(pathCube);
 }
 
 // Called each frame
@@ -194,11 +201,31 @@ function animate() {
     requestAnimationFrame(animate);
     var deltaTime = clock.getDelta();
 
-    // Modify data of cubes
+    recentPathCubesListLength = pathCubes.length;
+    // console.log(Math.round(pathCubes[0].mesh.position.x) + " | " +
+    // Math.round(pathCubes[0].mesh.position.y) + " | " +
+    // Math.round(pathCubes[0].mesh.position.z) + " <- " +
+    // Math.round(pathCubes[0].tPos * 100) / 100);
+    // Update data of cubes
     pathCubes.forEach(cube => {
+        if (!cube.isPartOfScene) {
+            // Remove mesh out of scene (last frame moved up 10000)
+            scene.remove(cube.mesh);
+            cube.mesh = undefined;
+            // cube.mesh.geometry.dispose();
+            // cube.mesh.material.dispose();
+            pathCubes.splice(cube.cubeIndex, 1);
+            return;
+        }
+        cube.updateTPos(deltaTime);
+        if (cube.mesh == undefined) { return }
         cube.updatePos();
         cube.updateRotation(deltaTime);
-        cube.updateTPos(deltaTime);
+
+        // Fix because of flickering cubes in the top right (Quickfix!)
+        if (cube.mesh.position.x == 0 && cube.mesh.position.x == 0) {
+            cube.mesh.position.y -= 100000;
+        }
     });
 
     windowResize()
@@ -209,10 +236,12 @@ function animate() {
 
         cubeIndex = pathCubes.length
         let pathCube = new Cube(cubeIndex, tPos);
-        addNewCube(pathCube);
+        setupNewCube(pathCube);
     }
 
-    console.log("CubeAmount: " + pathCubes.length + "/" + cubeAmount);
+    if (hasCubeAmountChanged || recentPathCubesListLength != pathCubes.length) {
+        console.log("CubeAmount: " + pathCubes.length + "/" + cubeAmount);
+    }
 
     renderer.render(scene, camera); // Updates screen
 }
@@ -225,7 +254,8 @@ function windowResize() {
     latestWindowSize = new Vector2(window.innerWidth, window.innerHeight);
 
     // Set new target value for cubes based on window width
-    cubeAmount = Math.round(window.innerWidth / 30)
+    hasCubeAmountChanged = cubeAmount != Math.round(window.innerWidth / 40)
+    cubeAmount = Math.round(window.innerWidth / 40)
 
     // Resize render region
     camera.left = 0;
