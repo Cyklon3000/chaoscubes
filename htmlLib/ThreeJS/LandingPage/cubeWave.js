@@ -243,7 +243,7 @@ function Cube(cubeIndex, tPos)
         this.cubeIndex = pathCubes.indexOf(this);
 
         // Calculate speed up (Higer when page just loaded)
-        let initialSpeedMultipier = (20 - 1) * Math.pow(1.75, -clock.getElapsedTime()) + 1; // (Speed increase - 1) * fallofSpeed^-elapsedTimeSincePageLoaded + 1
+        let initialSpeedMultipier = (20 - 1) * Math.pow(1.75, -clock.getElapsedTime() + 0.25) + 1; // (Speed increase - 1) * fallofSpeed^-elapsedTimeSincePageLoaded + 1
         // factor in pathLength (because pathLength != 1) and scale by cube Speed and initialSpeedup
         let speedMultipier = cubePath.pathLength * this.cubeSpeed * initialSpeedMultipier;
         // Adjust for slope (higer slope -> lower speed)
@@ -326,7 +326,7 @@ function BackgroundSquare()
     this.updateMesh = function ()
     {
         let distance = this.getClosestCubeDistance();
-        let litWeight = Math.pow(1.0085, -distance);
+        let litWeight = Math.pow(1.009, -distance);
         let lerpedColor = lerpColor(backgroundColor, this.litSquareColor, litWeight);
         this.mesh.material.color.setHex(lerpedColor);
     }
@@ -379,6 +379,7 @@ for (cubeIndex = 0; cubeIndex < cubeAmount; cubeIndex += 1)
 {
     let tPos = lerp(cubePath.startTPos, cubePath.endTPos, cubeIndex / cubeAmount); // Distribute tPos equally
     tPos -= cubePath.endTPos // Move cubes bejoind start position, so they fly in initially
+    tPos -= 0.25 // Additional time before they fly in
 
     let pathCube = new Cube(cubeIndex, tPos);
     setupNewCube(pathCube);
@@ -388,12 +389,16 @@ for (cubeIndex = 0; cubeIndex < cubeAmount; cubeIndex += 1)
 var backgroundSquares;
 fillBackgroundWithSquares()
 
-// Called each frame
 var clock = new THREE.Clock();
 
+// Called each frame
 function animate()
 {
     requestAnimationFrame(animate);
+
+    cubeRenderer.render(cubeScene, cubeCamera); // Updates canvas
+    backgroundRenderer.render(backgroundScene, backgroundCamera); // Update background
+
     var deltaTime = clock.getDelta();
 
     recentPathCubesListLength = pathCubes.length;
@@ -447,9 +452,6 @@ function animate()
     {
         console.log("CubeAmount: " + pathCubes.length + "/" + cubeAmount);
     }
-
-    cubeRenderer.render(cubeScene, cubeCamera); // Updates canvas
-    backgroundRenderer.render(backgroundScene, backgroundCamera); // Update background
 }
 
 var latestWindowSize = new Vector2(window.innerWidth, window.innerHeight);
