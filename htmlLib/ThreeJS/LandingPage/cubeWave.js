@@ -5,6 +5,10 @@ function Vector2(x, y)
 {
     this.x = x;
     this.y = y;
+
+    this.getDistanceTo = function (dst) {
+        return Math.sqrt(Math.pow(dst.x - this.x, 2) + Math.pow(dst.y - this.y, 2))
+    }
 }
 
 function Vector3(x, y, z)
@@ -17,6 +21,21 @@ function Vector3(x, y, z)
 function lerp(start, end, amt)
 {
     return (1 - amt) * start + amt * end;
+}
+
+function lerpColor(a, b, amount) {
+
+    var ar = (a & 0xFF0000) >> 16,
+    ag = (a & 0x00FF00) >> 8,
+    ab = a & 0x0000FF,
+    br = (b & 0xFF0000) >> 16,
+    bg = (b & 0x00FF00) >> 8,
+    bb = b & 0x0000FF,
+    rr = Math.round(ar + amount * (br - ar)),
+    rg = Math.round(ag + amount * (bg - ag)),
+    rb = Math.round(ab + amount * (bb - ab));
+    
+    return (rr << 16) + (rg << 8) + rb;
 }
 
 // Standard Normal variate using Box-Muller transform. [@Maxwell Collard + @joe; https://stackoverflow.com/questions/25582882]
@@ -35,7 +54,7 @@ function setupNewCube(newCube)
     pathCubes.push(newCube);
 }
 
-function calculateSquareAmount(minVerticalSquares = 15, maxSquareSize = 50)
+function calculateSquareAmount(minVerticalSquares = 15, maxSquareSize = 35)
 {
     let verticalSquares = Math.ceil(window.innerHeight / maxSquareSize);
 
@@ -52,10 +71,10 @@ function setupNewBackgroundSquare(newSquare, squareSize, x, y)
 {
     // Generatze Mesh
     let geometry = new THREE.PlaneGeometry(squareSize.x, squareSize.y, 1, 1);
-    let material = new THREE.MeshBasicMaterial
+    let material = new THREE.MeshStandardMaterial
         ({
-            color: 0xff0000,
-            wireframe: true
+            color: backgroundColor,
+            side: THREE.BackSide
         }); // materials.color(newSquare.unlitSquareColor);
     let squareMesh = new THREE.Mesh(geometry, material);
 
@@ -76,13 +95,13 @@ function fillBackgroundWithSquares()
     let squareSize = new Vector2(window.innerWidth / squareAmount.x, window.innerHeight / squareAmount.y);
     console.log("ScreenSize: x:" + window.innerWidth + " | y:" + window.innerHeight);
     console.log("BackgroundSquare Size: x:" + squareSize.x.toFixed(2) + " | y:" + squareSize.y.toFixed(2));
-    console.log("BackgroundSquare Amount: x:" + squareAmount.x + " | y:" + squareAmount.y)
+    console.log("BackgroundSquare Amount: x:" + squareAmount.x + " | y:" + squareAmount.y + " > " + (squareAmount.x*squareAmount.y))
 
     for (let y = 0; y < squareAmount.y; y += 1)
     {
         for (let x = 0; x < squareAmount.x; x += 1)
         {
-            let square = new backgroundSquare()
+            let square = new BackgroundSquare()
             setupNewBackgroundSquare(square, squareSize, x, y)
         }
     }
@@ -147,30 +166,40 @@ function GetMaterial()
 {
     this.baseMaterial = new THREE.MeshStandardMaterial({
         color: 0x00FF00,
-        roughness: 0
+        roughness: 0,
+        flatShading: true
     })
 
     this.materialOptions = [
         new THREE.MeshStandardMaterial({
             color: 0xF651D7,
-            roughness: 0
+            roughness: 0,
+            flatShading: true
         }),
         new THREE.MeshStandardMaterial({
             color: 0xD346D4,
-            roughness: 0
+            roughness: 0,
+            flatShading: true
         }),
         new THREE.MeshStandardMaterial({
             color: 0xD959EB,
-            roughness: 0
+            roughness: 0,
+            flatShading: true
         }),
         new THREE.MeshStandardMaterial({
             color: 0xB54AD4,
-            roughness: 0
+            roughness: 0,
+            flatShading: true
         }),
         new THREE.MeshStandardMaterial({
             color: 0xC159F6,
-            roughness: 0
+            roughness: 0,
+            flatShading: true
         })
+    ]
+
+    this.colorOptions = [
+        0xd751e0, 0xd750df, 0xd151e0, 0xcd52e2, 0xd152e2
     ]
 
     this.random = function ()
@@ -182,17 +211,7 @@ function GetMaterial()
     this.randomColor = function ()
     {
         let randomIndex = Math.floor(this.materialOptions.length * Math.random());
-        let randomMaterial = this.materialOptions[randomIndex];
-        return randomMaterial.color;
-    }
-
-    this.color = function (color)
-    {
-        let material = new THREE.MeshStandardMaterial({
-            color: color,
-            roughness: 0
-        })
-        return material;
+        return this.colorOptions[randomIndex];
     }
 }
 
@@ -285,15 +304,31 @@ function Cube(cubeIndex, tPos)
     this.cubeSpeed = this.randomizeCubeSpeed()
 };
 
-function backgroundSquare(unlitSquareColor = 0xFF1414)
+function BackgroundSquare()
 {
-    this.unlitSquareColor = unlitSquareColor;
     this.litSquareColor = materials.randomColor();
     this.mesh;
 
+
+    this.getClosestCubeDistance = function () {
+        let squarePosition = new Vector2(this.mesh.position.x, this.mesh.position.y);
+        let shortestDistance = Infinity
+        pathCubes.forEach(cube => {
+            let cubePosition = new Vector2(cube.mesh.position.x, cube.mesh.position.y);
+            let distance = squarePosition.getDistanceTo(cubePosition)
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+            }
+        });
+        return shortestDistance;
+    }
+
     this.updateMesh = function ()
     {
-        this.mesh.material.color.setHex(0x362453);
+        let distance = this.getClosestCubeDistance();
+        let litWeight = Math.pow(1.0085, -distance);
+        let lerpedColor = lerpColor(backgroundColor, this.litSquareColor, litWeight);
+        this.mesh.material.color.setHex(lerpedColor);
     }
 }
 
@@ -319,13 +354,16 @@ const backgroundRenderer = new THREE.WebGLRenderer({
 })
 backgroundRenderer.setPixelRatio(window.devicePixelRatio);
 backgroundRenderer.setSize(window.innerWidth, window.innerHeight);
+var backgroundColor = 0x141414
 
 // Setup light
-const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1)
-directionalLight.position.set(0, 0, -1)
-cubeScene.add(directionalLight);
-const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1);
-backgroundScene.add(ambientLight);
+const cubesDirectionalLight = new THREE.DirectionalLight(0xFFFFFF, 1)
+cubesDirectionalLight.position.set(0, 0, -1)
+cubeScene.add(cubesDirectionalLight);
+const cubesAmbientLight = new THREE.AmbientLight(backgroundColor, 1);
+cubeScene.add(cubesAmbientLight);
+const backgroundAmbientLight = new THREE.AmbientLight(0xFFFFFF, 1);
+backgroundScene.add(backgroundAmbientLight);
 
 const materials = new GetMaterial();
 
@@ -433,7 +471,8 @@ function windowResize(deltaTime)
         timeSinceResize += deltaTime;
         return;
     }
-    if (!updateWindowSize) {
+    if (!updateWindowSize)
+    {
         return;
     }
     updateWindowSize = false;
