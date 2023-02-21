@@ -1,18 +1,14 @@
 {
     "name": "chaoscubes",
-    "homepage": "https://cyklon3000.github.io/chaoscubes",
     "private": true,
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "predeploy": "npm run build",
-        "deploy": "gh-pages -d build",
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview"
     },
     "devDependencies": {
-        "gh-pages": "^5.0.0",
         "vite": "^4.1.0"
     },
     "dependencies": {
