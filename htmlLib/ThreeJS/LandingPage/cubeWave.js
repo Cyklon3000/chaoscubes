@@ -6,7 +6,8 @@ function Vector2(x, y)
     this.x = x;
     this.y = y;
 
-    this.getDistanceTo = function (dst) {
+    this.getDistanceTo = function (dst)
+    {
         return Math.sqrt(Math.pow(dst.x - this.x, 2) + Math.pow(dst.y - this.y, 2))
     }
 }
@@ -23,18 +24,19 @@ function lerp(start, end, amt)
     return (1 - amt) * start + amt * end;
 }
 
-function lerpColor(a, b, amount) {
+function lerpColor(a, b, amount)
+{
 
     var ar = (a & 0xFF0000) >> 16,
-    ag = (a & 0x00FF00) >> 8,
-    ab = a & 0x0000FF,
-    br = (b & 0xFF0000) >> 16,
-    bg = (b & 0x00FF00) >> 8,
-    bb = b & 0x0000FF,
-    rr = Math.round(ar + amount * (br - ar)),
-    rg = Math.round(ag + amount * (bg - ag)),
-    rb = Math.round(ab + amount * (bb - ab));
-    
+        ag = (a & 0x00FF00) >> 8,
+        ab = a & 0x0000FF,
+        br = (b & 0xFF0000) >> 16,
+        bg = (b & 0x00FF00) >> 8,
+        bb = b & 0x0000FF,
+        rr = Math.round(ar + amount * (br - ar)),
+        rg = Math.round(ag + amount * (bg - ag)),
+        rb = Math.round(ab + amount * (bb - ab));
+
     return (rr << 16) + (rg << 8) + rb;
 }
 
@@ -54,7 +56,7 @@ function setupNewCube(newCube)
     pathCubes.push(newCube);
 }
 
-function calculateSquareAmount(minVerticalSquares = 15, maxSquareSize = 35)
+function calculateSquareAmount(minVerticalSquares = 15, maxSquareSize = 30)
 {
     let verticalSquares = Math.ceil(window.innerHeight / maxSquareSize);
 
@@ -74,7 +76,8 @@ function setupNewBackgroundSquare(newSquare, squareSize, x, y)
     let material = new THREE.MeshStandardMaterial
         ({
             color: backgroundColor,
-            side: THREE.BackSide
+            side: THREE.BackSide,
+            flatShading: true
         }); // materials.color(newSquare.unlitSquareColor);
     let squareMesh = new THREE.Mesh(geometry, material);
 
@@ -95,7 +98,7 @@ function fillBackgroundWithSquares()
     let squareSize = new Vector2(window.innerWidth / squareAmount.x, window.innerHeight / squareAmount.y);
     console.log("ScreenSize: x:" + window.innerWidth + " | y:" + window.innerHeight);
     console.log("BackgroundSquare Size: x:" + squareSize.x.toFixed(2) + " | y:" + squareSize.y.toFixed(2));
-    console.log("BackgroundSquare Amount: x:" + squareAmount.x + " | y:" + squareAmount.y + " > " + (squareAmount.x*squareAmount.y))
+    console.log("BackgroundSquare Amount: x:" + squareAmount.x + " | y:" + squareAmount.y + " > " + (squareAmount.x * squareAmount.y))
 
     for (let y = 0; y < squareAmount.y; y += 1)
     {
@@ -310,13 +313,16 @@ function BackgroundSquare()
     this.mesh;
 
 
-    this.getClosestCubeDistance = function () {
+    this.getClosestCubeDistance = function ()
+    {
         let squarePosition = new Vector2(this.mesh.position.x, this.mesh.position.y);
         let shortestDistance = Infinity
-        pathCubes.forEach(cube => {
+        pathCubes.forEach(cube =>
+        {
             let cubePosition = new Vector2(cube.mesh.position.x, cube.mesh.position.y);
             let distance = squarePosition.getDistanceTo(cubePosition)
-            if (distance < shortestDistance) {
+            if (distance < shortestDistance)
+            {
                 shortestDistance = distance;
             }
         });
@@ -326,7 +332,7 @@ function BackgroundSquare()
     this.updateMesh = function ()
     {
         let distance = this.getClosestCubeDistance();
-        let litWeight = Math.pow(1.009, -distance);
+        let litWeight = Math.pow(1.01, -distance);
         let lerpedColor = lerpColor(backgroundColor, this.litSquareColor, litWeight);
         this.mesh.material.color.setHex(lerpedColor);
     }
