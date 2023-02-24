@@ -1,0 +1,14 @@
+body {
+    background-color: #141414;
+    color: white;
+    margin: 0;
+}
+
+#selection-container {
+    display: flex;
+    height: 100vh;
+    height: 100dvh; /* Better mobile support */
+    justify-content: center;
+    align-items: center;
+}
+
