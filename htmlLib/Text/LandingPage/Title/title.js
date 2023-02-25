@@ -20,7 +20,7 @@ function typeEffect()
         // buffer.innerHTML = text.substring(index + 1, text.length);
 
         index++;
-        setTimeout(typeEffect, Math.random() * 50 + 25);
+        setTimeout(typeEffect, Math.random() * 100 + 25);
     }
 }
 

@@ -1,4 +1,4 @@
-import '/htmlLib/ThreeJS/LandingPage/cubeWave.css';
+import '/htmlLib/ThreeJS/LandingPage/cubeWave/style.css';
 import * as THREE from 'three';
 
 function Vector2(x, y)

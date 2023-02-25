@@ -1,0 +1,49 @@
+@use '../../.scss/global' as *;
+@use '../../.scss/font' as *;
+@use '../../.scss/glassmorphism' as gm;
+@use '../../.scss/center' as center;
+
+$footer-padding: 1rem;
+$footer-height: 3rem;
+$footer-section-spacing: 10vw;
+$footer-section-item-gap: 2rem;
+$footer-section-item-font-size: 1rem;
+
+body {
+	@include body-default;
+}
+
+#footer {
+	@include center.self-absolute;
+	bottom: $footer-padding;
+	width: fit-content;
+	height: $footer-height;
+	@include center.content-flex;
+	@include gm.glass-morphism;
+
+	section {
+		margin: 0 calc($footer-section-spacing / 2);
+		display: grid;
+		gap: $footer-section-item-gap;
+		a {
+			display: inline-block;
+			@include accent-font;
+			white-space: nowrap;
+			font-size: $footer-section-item-font-size;
+			ion-icon {
+				transform: $text-icon-transform;
+			}
+		}
+	}
+
+	#left {
+		grid-template-columns: 1fr;
+		a {
+			color: $text-transparent-color;
+		}
+	}
+
+	#right {
+		grid-template-columns: 1fr 1fr;
+	}
+}

@@ -1,0 +1,22 @@
+@use 'global' as *;
+
+$glass-plane-color: rgba(0, 0, 0, 0.25);
+$glass-border-properties: 1.5px solid rgba(255, 255, 255, 0.25);
+$glass-blur-stength: 10px;
+
+@mixin glass-morphism {
+    // Glassmorphism
+	background-color: $glass-plane-color;
+	border-top: $glass-border-properties;
+	border-left: $glass-border-properties;
+	border-radius: $border-radius;
+	backdrop-filter: $glass-blur-stength;
+}
+
+@mixin hover-effect {
+    transition: background-color 0.2s ease-in-out;
+    
+    &:hover {
+        background-color: rgba(25, 25, 25, 0.25);
+    }
+}

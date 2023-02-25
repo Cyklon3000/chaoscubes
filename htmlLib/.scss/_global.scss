@@ -1,0 +1,10 @@
+@use 'font' as *;
+
+$background-color: rgb(20, 20, 20);
+$border-radius: 1rem;
+
+@mixin body-default {
+    background-color: $background-color;
+	color: $text-primary-color;
+	margin: 0;
+}

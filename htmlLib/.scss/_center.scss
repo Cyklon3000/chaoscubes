@@ -1,0 +1,12 @@
+@mixin self-absolute {
+    position: absolute;
+    left: 0;
+	right: 0;
+	margin: 0 auto;
+}
+
+@mixin content-flex {
+    display: flex;
+	align-items: center;
+	justify-content: center;
+}

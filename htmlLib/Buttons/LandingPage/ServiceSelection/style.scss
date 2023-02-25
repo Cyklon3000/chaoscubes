@@ -1,0 +1,58 @@
+@use '../../../.scss/global' as *;
+@use '../../../.scss/font' as *;
+@use '../../../.scss/glassmorphism' as gm;
+@use '../../../.scss/center' as center;
+
+$button-padding: 1rem;
+$button-width: 14rem;
+$button-height: 16rem;
+$button-icon-size: 10rem;
+$button-label-size: 2rem;
+
+body {
+	@include body-default;
+}
+
+#selection-container {
+    @include center.content-flex;
+    height: 100vh;
+    height: 100dvh;
+
+    #button-grid {
+        display: grid;
+        gap: $button-padding;
+        grid-template-columns: 1fr; // Mobile 1 column
+
+        a {
+            color: $text-primary-color;
+            text-decoration: none;
+        }
+
+        .button {
+            display: grid;
+            width: min($button-width, calc(100vw - 2 * $button-padding));
+            height: $button-height;
+            @include gm.glass-morphism;
+            @include gm.hover-effect;
+
+            .icon {
+                @include center.content-flex;
+                font-size: $button-icon-size;
+            }
+
+            .label {
+                @include center.content-flex;
+                @include accent-font;
+                font-size: $button-label-size;
+            }
+        }
+    }
+}
+
+@media (min-width: calc(2 * $button-width + 3 * $button-padding)) {
+    #selection-container {
+        #button-grid {
+            grid-template-columns: 1fr 1fr; // Desktop 2 columns
+        }
+    }
+}
