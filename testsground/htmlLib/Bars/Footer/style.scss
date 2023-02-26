@@ -19,7 +19,11 @@ body {
 	width: fit-content;
 	height: $footer-height;
 	@include center.content-flex;
+	display: none; // Initially invisible
 	@include gm.glass-morphism;
+
+	transition: transform $medium-transition;
+	transform: translateY(calc($footer-height + 2 * $footer-padding));
 
 	section {
 		margin: 0 calc($footer-section-spacing / 2);
