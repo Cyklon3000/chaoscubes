@@ -1,14 +1,18 @@
 {
     "name": "chaoscubes",
+    "homepage": "https://Cyklon3000.github.io/chaoscubes/",
     "private": true,
     "version": "0.0.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "deploy": "vite build && gh-pages -d dist"
     },
     "devDependencies": {
+        "@vitejs/plugin-vue": "^4.0.0",
+        "gh-pages": "^5.0.0",
         "sass": "^1.58.3",
         "vite": "^4.1.0"
     },

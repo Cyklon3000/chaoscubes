@@ -1,0 +1,12 @@
+$accent-font-family: "Consolas", monospace;
+$accent-font-weight: bold;
+$text-primary-color: rgb(255, 255, 255);
+$text-transparent-color: rgba(255, 255, 255, 0.5);
+$text-icon-transform: translateY(0.175rem) translateX(0.2rem) scale(1.2);
+
+@mixin accent-font {
+    color: $text-primary-color;
+	font-family: $accent-font-family;
+	font-weight: $accent-font-weight;
+	text-decoration: none;
+}

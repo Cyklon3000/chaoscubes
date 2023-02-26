@@ -1,13 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/main.js"></script>
-  </body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChaosCubes</title>
+</head>
+
+<body style="overflow: hidden;">
+    <!-- CubeWave -->
+    <canvas id="background"></canvas>
+    <canvas id="cubes"></canvas>
+    <script type="module" src="scripts\cubeWave.js"></script>
+    
+    <div id="one-page-content">
+        <div id="row">
+            <!-- Title -->
+            <div id="title-container">
+            <title id="title">ChaosCubes</title>
+            <buffer id="buffer"></buffer>
+            </div>
+            <script type="module" src="scripts\title.js"></script>
+        
+            <!-- ServiceSelection -->
+            <div id="selection-container">
+            <div id="button-grid">
+                <a href="#">
+                    <div class="button" id="generator">
+                        <div class="icon">
+                            <ion-icon name="construct-outline"></ion-icon>
+                        </div>
+                        <label class="label">
+                            Generator
+                        </label>
+                    </div>
+                </a>
+                <a href="#">
+                    <div class="button" id="library">
+                        <div class="icon">
+                            <ion-icon name="library-outline"></ion-icon>
+                        </div>
+                        <label class="label">
+                            Library
+                        </label>
+                    </div>
+                </a>
+            </div>
+            </div>
+            <script type="module" src="scripts\serviceSelection.js"></script>
+        </div>
+    </div>
+    <script type="module" src="scripts/onePage.js"></script>
+    
+    <!-- Footer -->
+    <footer id="footer">
+        <section id="left">
+            <a href="https://github.com/Cyklon3000/chaoscubes#readme" id="chaoscubes-label" tabindex="-1">
+                ChaosCubes
+            </a>
+        </section>
+        <section id="right">
+            <a href="#" id="privacy" >
+                <ion-icon name="shield-half-outline"></ion-icon>
+                Privacy
+            </a>
+            <a href="#" id="impress" tabindex="-1">
+                <ion-icon name="document-text-outline"></ion-icon>
+                Impress
+            </a>
+        </section>
+    </footer>
+    <script type="module" src="scripts\footer.js"></script>
+    
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
 </html>

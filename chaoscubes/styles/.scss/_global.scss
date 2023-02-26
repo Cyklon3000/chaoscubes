@@ -1,0 +1,12 @@
+@use 'font' as *;
+
+$background-color: rgb(20, 20, 20);
+$border-radius: 1rem;
+$short-transition: 0.2s ease-in-out;
+$medium-transition: 0.6s ease-in-out;
+
+@mixin body-default {
+    background-color: $background-color;
+	color: $text-primary-color;
+	margin: 0;
+}

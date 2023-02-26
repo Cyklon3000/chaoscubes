@@ -1,0 +1,7 @@
+@use "./.scss/center" as center;
+
+#one-page-content {
+    @include center.content-flex;
+    height: 100vh;
+    height: 100dvh;
+}
