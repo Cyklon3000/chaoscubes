@@ -7,4 +7,4 @@ ChaosCubes is meant to be a website for sharing minecraft builds as .nbt files. 
 
 The project currently relies on vite.
 
-*Note: The GitHub Pages deployment only works with static elements and can therefor not be used to display dynamic background or most of the sites functionality*
+*Note: The GitHub Pages deployment only works with static elements and can therefor not be used to display dynamic background or most of the sites functionality. This includes the automated .scss to <style/> conversion.*
